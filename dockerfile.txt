@@ -1,0 +1,70 @@
+add user bmopics
+java
+features
+activemq
+opics
+database
+volume mount D:\Opics_Fileserver:C:\fileserver
+FROM microsoft/windowsservercore
+
+MAINTAINER kumar.shanu@misys.com
+
+net user /add bmopics test123$
+net localgroup administrators bmopics /add
+
+jdk-8u144-windows-x64.exe /s ADDLOCAL="ToolsFeature,SourceFeature,PublicjreFeature"
+
+#SET PATH=%PATH%;C:\JAVA\JRE;C:\JAVA\JRE\BIN
+SET PATH=%PATH%;C:\Program Files\Java\jdk1.8.0_144\bin;C:\Program Files\Java\jdk1.8.0_144
+#SET JAVA_HOME=C:\JAVA\JRE
+SET JAVA_HOME=C:\Program Files\Java\jre1.8.0_144
+java -version
+powershell .\INSATLLPREREQ.ps1
+
+
+Install-WindowsFeature -Name 'Web-Server' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Http-Redirect' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-DAV-Publishing' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Custom-Logging' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Request-Monitor' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Http-Tracing' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Dyn-Compression' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Basic-Auth' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-CertProvider' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Client-Auth' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Digest-Auth' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Cert-Auth' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-IP-Security' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Url-Auth' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Windows-Auth' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-App-Dev' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Net-Ext' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs # Failed
+Install-WindowsFeature -Name 'Web-Net-Ext45' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017
+Install-WindowsFeature -Name 'Web-AppInit' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017
+Install-WindowsFeature -Name 'Web-ASP' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017
+Install-WindowsFeature -Name 'Web-Asp-Net' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Asp-Net45' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-WebSockets' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Mgmt-Tools' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'Web-Mgmt-Service' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs
+Install-WindowsFeature -Name 'NET-WCF-Services45'
+Install-WindowsFeature -Name 'NET-WCF-HTTP-Activation45' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs #Restart required
+Install-WindowsFeature -Name 'NET-WCF-MSMQ-Activation45' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs #Restart required
+Install-WindowsFeature -Name 'NET-HTTP-Activation' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs #Restart required
+Install-WindowsFeature -Name 'Web-WMI' -Source D:\CMRE_Nightly\SQLSERVER_NEW2017\sxs #Restart required
+
+activemq.bat\
+apache-activemq-5.15.1\bin\win64\InstallService.bat
+powershell start-service ActiveMQ
+
+setup.exe /configurationfile=ConfigurationFile.ini
+
+C:\OPICS\volume1\FusionCapitalOpics4.3.0.4\OPXSVR\Setup\OpicsPlusServerSetup.exe -q -l 4.3.0.4_03102017_703.log File="C:\OPICS\volume1\responsefile.txt"
+
+OpicsPlusServerSetup.exe -q -l opicslog.log File="responsefile.txt"
+
+#setup.exe /ACTION=install /QS /INSTANCENAME=MSSQLSERVER /IACCEPTSQLSERVERLICENSETERMS = 1 #/FEATURES=SQLENGINE /SQLSVCACCOUNT='NT AUTHORITY\System' /SQLSYSADMINACCOUNTS='BUILTIN\ADMINISTRATORS' #/TCPENABLED=1 /SECURITYMODE=SQL /SAPWD='test123$'
+
+
+#Adding ip to host files
+echo 0.0.0.0 websitename.com >> %WINDIR%\System32\Drivers\Etc\Hosts
